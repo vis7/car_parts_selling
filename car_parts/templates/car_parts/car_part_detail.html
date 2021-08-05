@@ -7,3 +7,7 @@ Category: {{carpart.category}}<br>
 description: {{carpart.description}}<br>
 is_new: {{carpart.is_new}}<br>
 seller username: {{carpart.seller.user.username}}<br>
+
+<form method=post action="{% url 'car_parts:car_part_purchase' carpart.pk %}"> {% csrf_token %}
+    <input type=submit value="purchase">
+</form>

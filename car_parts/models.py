@@ -52,6 +52,12 @@ class CarPart(models.Model):
     def __str__(self):
         return self.part_name
 
+class Purchase(models.Model):
+    car_part = models.ForeignKey(CarPart, on_delete=models.CASCADE)
+    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.car_part} is purchased by buyer {self.buyer}"
 
 
 # Create your models here.

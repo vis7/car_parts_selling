@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
-from .forms import SellerSignupForm, CarPartForm
+from .forms import SellerSignupForm, CarPartForm, BuyerSignupForm
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
 from django.urls import reverse
-from .models import Seller, CarPart
+from .models import Seller, CarPart, Purchase, Buyer
+from django.views.generic.base import View
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Create your views here.
 class SellerSignupView(CreateView):
@@ -14,8 +17,15 @@ class SellerSignupView(CreateView):
     
     # success_url = reverse_lazy('user_detail', kwargs={'pk':self.pk})
     def get_success_url(self):
-        return reverse('seller_list')
+        return reverse('car_parts:seller_list')
 
+class BuyerSignupView(CreateView):
+    model = Buyer
+    form_class = BuyerSignupForm
+    template_name = 'registration/seller_signup.html'
+
+    def get_success_url(self):
+        return reverse('car_parts:car_part_list')
 
 
 class SellerDetailView(DetailView):
@@ -81,4 +91,29 @@ class CarPartListView(ListView):
             "carpart_list": car_parts
         }
         return render(request, self.template_name, context)
-    
+
+class CarPartPurchaseView(View):
+    def post(self, request, *args, **kwargs):
+        # add entry in purchase
+        car_part_pk = kwargs.get('pk')
+        car_part = CarPart.objects.get(pk=car_part_pk)
+        po = Purchase.objects.create(car_part=car_part, buyer=request.user.buyer)
+        
+        # send mail to seller
+        subject= ' it  means a world to us '
+        message = f'congretulations {car_part.seller.user.username} your part {car_part.part_name} is purchased by {request.user}'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [ car_part.seller.user.email ]
+        send_mail( subject, message, email_from, recipient_list )  
+
+        if po:
+            msg = "Purchase successfully."
+        else:
+            msg = "Not Purchased. Try again."
+        context = {
+            'msg':msg
+        }
+        return render(request, 'car_parts/purchase.html', context)
+
+    # def get(self, request, *args, **kwargs):
+    #     return

@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.contrib.auth.forms import UserCreationForm
-from .models import Seller , User, CarPart
+from .models import Seller , User, CarPart, Buyer
 from django import forms
 # from django.contrib.auth.models import User
 
@@ -23,6 +23,18 @@ class SellerSignupForm(UserCreationForm):
         seller.save()
         # print(self.cleaned_data)
         return user
+
+class BuyerSignupForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+    
+    @transaction.atomic
+    def save(self):
+        user = super().save(commit=False)
+        user.is_buyer = True
+        user.save()
+        buyer = Buyer.objects.create(user=user)
+        return buyer
 
 class CarPartForm(forms.ModelForm):
     class Meta:

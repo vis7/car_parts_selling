@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from car_parts.views import (
-    SellerSignupView, UserDetailView
+    SellerSignupView, UserDetailView, SellerListView, index_view, CarPartCreate,
+    CarPartDetailView
 )
 
 urlpatterns = [
@@ -24,5 +25,10 @@ urlpatterns = [
     path('seller/signup/', SellerSignupView.as_view(), name='seller_signup'),
     # path('car_parts/', include('car_parts.urls'))
     # path('seller/<int:pk>/', SellerDetailView.as_view(), name='seller_detail'),
-    path('user/<int:pk>/', UserDetailView.as_view(), name='user_detail')
+    path('user/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
+    path('seller/', SellerListView.as_view(), name='seller_list'),
+    path('', include('django.contrib.auth.urls')),
+    path('', index_view, name='index_view'),
+    path('car_parts/create', CarPartCreate.as_view(), name='car_part_create'),
+    path('car_parts/<int:pk>', CarPartDetailView.as_view(), name='car_part_detail')
 ]

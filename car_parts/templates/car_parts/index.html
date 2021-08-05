@@ -1,0 +1,10 @@
+{% if user.is_authenticated %}
+    welcome {{user.username}}<br>
+    click hear for <a href='logout'>logout</a>
+{% else %}
+    click hear for <a href='login'>login</a>
+{% endif %}    
+
+<br>
+
+car parts selling 

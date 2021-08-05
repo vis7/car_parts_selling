@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 
 CATEGORY_TYPE = (
@@ -13,7 +14,31 @@ CATEGORY_TYPE = (
     ('C','chassis'),
 )
 
-User = get_user_model()
+# User = get_user_model()
+
+class User(AbstractUser):
+    is_buyer = models.BooleanField(default=False)
+    is_seller = models.BooleanField(default=False)
+
+    def _str__(self):
+        return self.username
+
+    def get_absolute_url(self):
+        return reverse("user_detail", kwargs={"pk": self.pk})
+    
+
+class Seller(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return f'seller: {self.user.username}'
+
+class Buyer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'seller: {self.user.username}'
 
 class CarPart(models.Model):
     part_name = models.CharField(max_length=32)
@@ -22,33 +47,12 @@ class CarPart(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_TYPE)
     description = models.TextField()
     is_new = models.BooleanField(default=False)
-    seller = models.OneToOneField(User, on_delete=models.CASCADE)
+    seller = models.OneToOneField(Seller, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.part_name
 
-# class User(AbstractUser):
-#     is_buyer = models.BooleanField(default=False)
-#     is_seller = models.BooleanField(default=False)
 
-#     def _str__(self):
-#         return self.username
-
-#     def get_absolute_url(self):
-#         return reverse("user_detail", kwargs={"pk": self.pk})
-    
-
-# class Seller(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'seller: {self.user.username}'
-
-# class Buyer(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'seller: {self.user.username}'
 
 # Create your models here.
 

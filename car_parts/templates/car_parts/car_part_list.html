@@ -1,0 +1,20 @@
+select Category from list
+<form method=post> {% csrf_token %}
+<select name='category_name'>
+    <option value='E'>engine</option>
+    <option value='FS'>fuel system</option>
+    <option value='EX_S'>exhaust system</option>
+    <option value='CS'>cooling system</option>
+    <option value='LS'>lubrication system</option>
+    <option value='EL_S'>electrical system</option>
+    <option value='T'>transmission</option>
+    <option value='C'>chassis</option>
+</select>
+    <input type=submit value='filter'>
+</select>
+
+<br><br>
+
+{% for car_part in carpart_list %}
+    {{car_part.part_name}}
+{% endfor %}

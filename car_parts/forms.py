@@ -6,7 +6,9 @@ from django import forms
 
 
 class SellerSignupForm(UserCreationForm):
+    email = forms.CharField(max_length=200)
     address = forms.CharField(max_length=200)
+
     class Meta(UserCreationForm.Meta):
         model = User
     
@@ -14,14 +16,16 @@ class SellerSignupForm(UserCreationForm):
     def save(self):
         user = super().save(commit=False)
         user.is_seller = True
+        user.email = self.cleaned_data.get('email')
         user.save()
-        c_user = Seller.objects.create(user=user)
-        c_user.address = self.cleaned_data.get('address')
-        c_user.save()
-        print(self.cleaned_data)
+        seller = Seller.objects.create(user=user)
+        seller.address = self.cleaned_data.get('address')
+        seller.save()
+        # print(self.cleaned_data)
         return user
 
 class CarPartForm(forms.ModelForm):
     class Meta:
         model = CarPart
         fields = ['part_name', 'car_model_name', 'brand', 'category', 'description', 'is_new']
+    

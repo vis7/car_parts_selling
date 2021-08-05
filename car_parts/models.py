@@ -47,7 +47,7 @@ class CarPart(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_TYPE)
     description = models.TextField()
     is_new = models.BooleanField(default=False)
-    seller = models.OneToOneField(Seller, on_delete=models.CASCADE)
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.part_name

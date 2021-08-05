@@ -11,14 +11,11 @@ class SellerSignupView(CreateView):
     model = User
     form_class = SellerSignupForm
     template_name = 'registration/seller_signup.html'
-    # fields = ['first_name', 'last_name', 'username', 'email', 'password']
     
     # success_url = reverse_lazy('user_detail', kwargs={'pk':self.pk})
     def get_success_url(self):
         return reverse('seller_list')
-    # def get_context_data(self, **kwargs):
-    #     # kwargs['user_type'] = 'cuser'
-    #     return super().get_context_data(**kwargs)
+
 
 
 class SellerDetailView(DetailView):
@@ -51,12 +48,16 @@ class CarPartCreate(CreateView):
     form_class = CarPartForm
     template_name = 'car_parts/car_part_create.html'
 
-    def get_success_url(self):
-        return redirect(reverse('car_parts_detail', kwargs={'pk':self.pk}))
+    # def get_success_url(self):
+    #     return redirect(reverse('car_parts_detail', kwargs={'pk':self.pk}))
     
-    def form_valid(self, form):
-        form.instance.seller = self.request.user.seller
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        form = CarPartForm(request.POST or None)
+        if form.is_valid():
+            car_part = form.save(commit=False)
+            car_part.seller = request.user.seller
+            car_part.save()
+        return redirect(reverse('car_parts:car_part_list'))
 
 class CarPartDetailView(DetailView):
     model = CarPart
@@ -64,3 +65,20 @@ class CarPartDetailView(DetailView):
 
     def get_object(self):
         return get_object_or_404(CarPart, pk=self.kwargs['pk'])
+
+class CarPartListView(ListView):
+    model = CarPart
+    template_name='car_parts/car_part_list.html'
+
+    def get_queryset(self):
+        # return super().get_queryset()
+        return CarPart.objects.filter(category='E')
+    
+    def post(self, request):
+        category_name = request.POST.get('category_name', None)
+        car_parts = CarPart.objects.filter(category=category_name)
+        context = {
+            "carpart_list": car_parts
+        }
+        return render(request, self.template_name, context)
+    
